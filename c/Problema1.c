@@ -24,6 +24,7 @@ int main()
         } else if (ladoA != ladoB && ladoA != ladoC && ladoB != ladoC){
             printf("Escaleno.");
         }
-    } else
-        printf ("Inválido.\nSeus valores não podem formar um triangulo");
+    } else {
+        printf ("Inválido.\nSeus valores não formam um triangulo");
+    }
 }
