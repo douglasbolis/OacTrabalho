@@ -6,12 +6,12 @@ int main(void) {
     int prod = 1;
 
     printf("Digite um numero para calcular o fatorial: ");
-    scanf("%d\n", &elem);
+    scanf("%d", &elem);
 
     if (elem < 0) {
-        print("Numero invalido!\nNao existe fatorial de numero negativo.\n\n");
+        printf("Numero invalido!\nNao existe fatorial de numero negativo.\n\n");
         printf("Digite outro numero maior que 0: ");
-        scanf("%d\n", &elem);
+        scanf("%d", &elem);
     }
 
     aux = elem;
@@ -21,5 +21,5 @@ int main(void) {
         aux--;
     }
 
-    printf("Fatorial de %d: %d.", elem, prod);
+    printf("Fatorial de %d: %d.\n", elem, prod);
 }
