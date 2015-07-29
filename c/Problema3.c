@@ -1,17 +1,25 @@
 #include<stdio.h>
 
 int main(void) {
+    int elem;
+    int aux;
+    int prod = 1;
 
-    int nFactory;
-    int produto = 1;
+    printf("Digite um numero para calcular o fatorial: ");
+    scanf("%d\n", &elem);
 
-    printf("Digite o numero para calcular o fatorial: ");
-    scanf("%d\n", &nFactory);
-
-    while (nFactory > 1) {
-        produto = produto * nFactory;
-        nFactory--;
+    if (elem < 0) {
+        print("Numero invalido!\nNao existe fatorial de numero negativo.\n\n");
+        printf("Digite outro numero maior que 0: ");
+        scanf("%d\n", &elem);
     }
 
-    printf("Fatorial do numero digitado %d.", produto);
+    aux = elem;
+
+    while (aux > 1) {
+        prod = prod * aux;
+        aux--;
+    }
+
+    printf("Fatorial de %d: %d.", elem, prod);
 }
