@@ -8,7 +8,7 @@ int main(void) {
     printf("Digite um numero para calcular o fatorial: ");
     scanf("%d", &elem);
 
-    if (elem < 0) {
+    while (elem < 0) {
         printf("Numero invalido!\nNao existe fatorial de numero negativo.\n\n");
         printf("Digite outro numero maior que 0: ");
         scanf("%d", &elem);
