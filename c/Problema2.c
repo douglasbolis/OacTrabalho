@@ -1,6 +1,6 @@
 #include<stdio.h>
 
-int main(void) {
+int main() {
 
     int qtdElements = 20;
     int elemA = 1;
