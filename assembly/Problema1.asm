@@ -59,6 +59,7 @@ PROC READ
     CMP AL,13
     JE  FIMREAD
 
+
     SUB AL,48  ; remove 48 do numero de entrada, pois a entrada é o codigo em ascii do valor digitado
     MOV NUM1,AL ; reserva em num1 para fazer calculo
     MOV AL,READNUM
