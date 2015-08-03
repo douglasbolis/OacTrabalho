@@ -6,72 +6,29 @@ RET
 
 
 PROC LEIA_VARIAVEIS
-  ;LADOA
-  PUSH AX
-  PUSH BX
-  PUSH CX
-  LEA DX, MSG_LADO_A             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
-  CALL READ
-  POP CX
-  POP BX
-  POP AX
-  MOV AL, READNUM
+    ;LADOA
+    LEA DX, MSG_LADO_A             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
+    CALL MSG_READ
+    CALL SCAN_NUM
+    MOV LADO_A,CX
 
-  ;LADOB
-  PUSH AX
-  PUSH BX
-  PUSH CX
-  LEA DX, MSG_LADO_B             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
-  CALL READ
-  POP CX
-  POP BX
-  POP AX
-  MOV BL, READNUM
+    ;LADOB
+    LEA DX, MSG_LADO_B             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
+    CALL MSG_READ
+    CALL SCAN_NUM
+    MOV LADO_B,CX
 
-  ;LADOC
-  PUSH AX
-  PUSH BX
-  PUSH CX
-  LEA DX, MSG_LADO_C             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
-  CALL READ
-  POP CX
-  POP BX
-  POP AX
-  MOV CL, READNUM
-  RET
+    ;LADOC
+    LEA DX, MSG_LADO_C             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
+    CALL MSG_READ
+    CALL SCAN_NUM
+    MOV LADO_C,CX
+    RET
 ENDP
 
-
-; FUNCIONAMENTO : O PROCEDIMENTO LE DOIS NUMEROS , MULTIPLICA O PRIMEIRO POR 10 E SOMA COM O SEGUNDO, ASSIM RETORNA EM READNUM
-PROC READ
-    ;impressao da mensagem de leitura do campo pelo registrador dx
-    MOV AH,09H
-    INT 21H
-    MOV READNUM,0
-
-
-    ;interruptor le o numero e armazena no registrador AL
-    LENUMERO:
-    MOV AH,01H
-    INT 21H
-
-    ;se o caracter lido for enter, finaliza a leitura, senão deve ser feito um loop
-    CMP AL,13
-    JE  FIMREAD
-
-
-    SUB AL,48  ; remove 48 do numero de entrada, pois a entrada é o codigo em ascii do valor digitado
-    MOV NUM1,AL ; reserva em num1 para fazer calculo
-    MOV AL,READNUM
-    MUL TEN ; por se tratar de base decimal na operação de entrada (inteiro) a cada digitado, deve pegar o valor já ARMAZENADO
-            ; multiplicar por 10 e por fim somar com o ultimo valor lido do teclado, essa condicao é parada quando é pressionado o enter
-
-    ADD AL,NUM1
-    MOV READNUM,AL
-    JMP LENUMERO ;loop incondicional em que é quebrado somente caso o "JE FIMREAD" ocorra
-
-    FIMREAD:
-    LEA DX, MSG_ENTER ; nova linha impressa no monitor ao final da leitura
+; FUNCIONAMENTO : imprime a string endereçada em dx
+PROC MSG_READ
+    ;IMPRESSAO DA MENSAGEM DE LEITURA DO CAMPO PELO REGISTRADOR DX
     MOV AH,09H
     INT 21H
     RET
@@ -81,76 +38,235 @@ ENDP
 PROC MAIN
 
     CALL LEIA_VARIAVEIS
-    ;LADOS DO TRIANGULO  AL,BL,CL SÃO OS LADOS A,B,C RESPECTIVAMENTE
+    ;LADOS DO TRIANGULO  AX,BX,CX SÃO OS LADOS A,B,C RESPECTIVAMENTE
+
+    ;APLICANDO LADO_A , LADO_B E LADO_C EM AX,BX,CX RESPECTIVAMENTE
+    MOV AX,LADO_A
+    MOV BX,LADO_B
+    MOV CX,LADO_C
+
 
     ;ANALISANDO SE FORMA UM TRIANGULO
     ; A <= B + C
-    MOV DL,0
-    ADD DL, BL
-    ADD DL, CL
-    CMP AL,DL
+    MOV DX,0
+    ADD DX, BX
+    ADD DX, CX
+    CMP AX,DX
     JG L_NAO_TRIANGULO
     ; B <= A + C
-    MOV DL,0
-    ADD DL, AL
-    ADD DL, CL
-    CMP BL,DL
+    MOV DX,0
+    ADD DX, AX
+    ADD DX, CX
+    CMP BX,DX
     JG L_NAO_TRIANGULO
     ; C <= A + B
-    MOV DL,0
-    ADD DL, AL
-    ADD DL, CL
-    CMP BL,DL
+    MOV DX,0
+    ADD DX, AX
+    ADD DX, CX
+    CMP BX,DX
     JG L_NAO_TRIANGULO
 
-    CMP AL,BL
+    CMP AX,BX
     JE ANALISA_EQUILATERO
     JNE ANALISA_ESCALENO
 
     ANALISA_EQUILATERO:
-    CMP AL,CL
-    JE L_EQUILATERO
-    JNE L_ISOSCELES
+      CMP AX,CX
+      JE L_EQUILATERO
+      JNE L_ISOSCELES
 
     ANALISA_ESCALENO:
-    CMP AL,CL
-    JE  L_ISOSCELES
-    CMP BL,CL
-    JE  L_ISOSCELES
-    JNE L_ESCALENO
-
+      CMP AX,CX
+      JE  L_ISOSCELES
+      CMP BX,CX
+      JE  L_ISOSCELES
+      JNE L_ESCALENO
+    ;COMO OBJETIVO FINAL É IMPRIMIR O RESULTADO OBTIDO, FIZ UMA TRILHA DE RESPOSTA INDO DO ERRO DO TRIANGULO NAO FORMADO
+    ;ATE A IMPRESSAO DE UM DOS TRIANGULOS, TODOS ELES FAZEM JMP PARA O LABEL L_PRINT
     L_NAO_TRIANGULO:
-    LEA DX, MSG_ERRO
-    JMP PRINT
+      LEA DX, MSG_ERRO
+      JMP L_PRINT
     L_EQUILATERO:
-    LEA DX, MSG_EQUILATERO
-    JMP PRINT
+      LEA DX, MSG_EQUILATERO
+      JMP  L_PRINT
     L_ISOSCELES:
-    LEA DX, MSG_ISOSCELES
-    JMP PRINT
+      LEA DX, MSG_ISOSCELES
+      JMP L_PRINT
     L_ESCALENO:
-    LEA DX, MSG_ESCALENO
-    JMP PRINT
-    PRINT:
-    MOV AH,09H
-    INT 21H
-    RET
+      LEA DX, MSG_ESCALENO
+      JMP L_PRINT
+    L_PRINT:
+      MOV AH,09H
+      INT 21H
+      RET
 ENDP
 
 
+;MACROS IMPORTADAS  DO EMU8086.INC
+;***************************************************************
+
+; MACRO LE UM NÚMERO COM SINAL E ARMAZENA NO REGISTRADOR CX
+DEFINE_SCAN_NUM         MACRO
+LOCAL MAKE_MINUS, TEN, NEXT_DIGIT, SET_MINUS
+LOCAL TOO_BIG, BACKSPACE_CHECKED, TOO_BIG2
+LOCAL STOP_INPUT, NOT_MINUS, SKIP_PROC_SCAN_NUM
+LOCAL REMOVE_NOT_DIGIT, OK_AE_0, OK_DIGIT, NOT_CR
+
+; PROTECT FROM WRONG DEFINITION LOCATION:
+JMP     SKIP_PROC_SCAN_NUM
+
+SCAN_NUM        PROC    NEAR
+        ;EMPILHANDO REGISTRADORES UTILIZADOS NA MACRO
+        PUSH    DX
+        PUSH    AX
+        PUSH    SI
+
+        ;CX SERÁ UTILIZADO NA LEITURA, INICIAMOS COM ZERO
+        MOV     CX, 0
+
+        ; RESET FLAG:
+        MOV     CS:MAKE_MINUS, 0
+
+NEXT_DIGIT:
+
+        ; GET CHAR FROM KEYBOARD
+        ; INTO AL:
+        MOV     AH, 00H
+        INT     16H
+        ; AND PRINT IT:
+        MOV     AH, 0EH
+        INT     10H
+
+        ; CHECK FOR MINUS:
+        CMP     AL, '-'
+        JE      SET_MINUS
+
+        ; CHECK FOR ENTER KEY:
+        CMP     AL, 13  ; CARRIAGE RETURN?
+        JNE     NOT_CR
+        JMP     STOP_INPUT
+NOT_CR:
+
+
+        CMP     AL, 8                   ; 'BACKSPACE' PRESSED?
+        JNE     BACKSPACE_CHECKED
+        MOV     DX, 0                   ; REMOVE LAST DIGIT BY
+        MOV     AX, CX                  ; DIVISION:
+        DIV     CS:TEN                  ; AX = DX:AX / 10 (DX-REM).
+        MOV     CX, AX
+        PUTC    ' '                     ; CLEAR POSITION.
+        PUTC    8                       ; BACKSPACE AGAIN.
+        JMP     NEXT_DIGIT
+BACKSPACE_CHECKED:
+
+
+        ; ALLOW ONLY DIGITS:
+        CMP     AL, '0'
+        JAE     OK_AE_0
+        JMP     REMOVE_NOT_DIGIT
+OK_AE_0:
+        CMP     AL, '9'
+        JBE     OK_DIGIT
+REMOVE_NOT_DIGIT:
+        PUTC    8       ; BACKSPACE.
+        PUTC    ' '     ; CLEAR LAST ENTERED NOT DIGIT.
+        PUTC    8       ; BACKSPACE AGAIN.
+        JMP     NEXT_DIGIT ; WAIT FOR NEXT INPUT.
+OK_DIGIT:
+
+
+        ; MULTIPLY CX BY 10 (FIRST TIME THE RESULT IS ZERO)
+        PUSH    AX
+        MOV     AX, CX
+        MUL     CS:TEN                  ; DX:AX = AX*10
+        MOV     CX, AX
+        POP     AX
+
+        ; CHECK IF THE NUMBER IS TOO BIG
+        ; (RESULT SHOULD BE 16 BITS)
+        CMP     DX, 0
+        JNE     TOO_BIG
+
+        ; CONVERT FROM ASCII CODE:
+        SUB     AL, 30H
+
+        ; ADD AL TO CX:
+        MOV     AH, 0
+        MOV     DX, CX      ; BACKUP, IN CASE THE RESULT WILL BE TOO BIG.
+        ADD     CX, AX
+        JC      TOO_BIG2    ; JUMP IF THE NUMBER IS TOO BIG.
+
+        JMP     NEXT_DIGIT
+
+SET_MINUS:
+        MOV     CS:MAKE_MINUS, 1 ;???
+        JMP     NEXT_DIGIT
+
+TOO_BIG2:
+        MOV     CX, DX      ; RESTORE THE BACKUPED VALUE BEFORE ADD.
+        MOV     DX, 0       ; DX WAS ZERO BEFORE BACKUP!
+TOO_BIG:
+        MOV     AX, CX
+        DIV     CS:TEN  ; REVERSE LAST DX:AX = AX*10, MAKE AX = DX:AX / 10
+        MOV     CX, AX
+        PUTC    8       ; BACKSPACE.
+        PUTC    ' '     ; CLEAR LAST ENTERED DIGIT.
+        PUTC    8       ; BACKSPACE AGAIN.
+        JMP     NEXT_DIGIT ; WAIT FOR ENTER/BACKSPACE.
+
+
+STOP_INPUT:
+        ; CHECK FLAG:
+        CMP     CS:MAKE_MINUS, 0 ; ????
+        JE      NOT_MINUS
+        NEG     CX
+NOT_MINUS:
+        ;RESTAURANDO OS VALORES ORIGINAIS QUE ESTAVAM ARMAZENADOS NA PILHA
+        POP     SI
+        POP     AX
+        POP     DX
+
+        ;Adicionado intencionalmente para adicionar uma nova linha a cada leitura
+        LEA DX, MSG_ENTER             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
+        CALL MSG_READ
+
+
+
+
+        RET
+MAKE_MINUS      DB      ?       ; USADO COMO MARCADOR DE -.
+TEN             DW      10      ; MULTIPLICADOR DE CASAS.
+SCAN_NUM        ENDP
+
+SKIP_PROC_SCAN_NUM:
+
+DEFINE_SCAN_NUM         ENDM
+;***************************************************************
+
+
+; this macro prints a char in AL and advances
+; the current cursor position:
+PUTC    MACRO   char
+        PUSH    AX
+        MOV     AL, char
+        MOV     AH, 0Eh
+        INT     10h
+        POP     AX
+ENDM
 
 
 
 
 
-;PARA LER UM NUMERO DE 2 CASAS, VOU ARMAZENAR EM DUAS VARIAVEIS
-NUM1 DB 0
-TEN  DB 10
-READNUM DB 0
-MSG_ENTER DB  13, 10, "$"
+DEFINE_SCAN_NUM
+
+;VARIAVEL APARA OS LADOS DO TRIANGULO
+LADO_A DW 0
+LADO_B DW 0
+LADO_C DW 0
 
 
-
+MSG_ENTER DB  13, 10, "$" ;cr + lf para forçar o enter e gerar uma nova linha
 MSG_LADO_A  DB "LADO A: $"
 MSG_LADO_B  DB "LADO B: $"
 MSG_LADO_C  DB "LADO C: $"
@@ -158,3 +274,5 @@ MSG_EQUILATERO  DB "SEU TRIÂNGULO É EQUILÁTERO. $"
 MSG_ISOSCELES   DB "SEU TRIÂNGULO É ISÓSCELES. $"
 MSG_ESCALENO    DB "SEU TRIÂNGULO É ESCALENO. $"
 MSG_ERRO    DB "SEUS VALORES NÃO FORMAM UM TRIANGULO $"
+
+END
