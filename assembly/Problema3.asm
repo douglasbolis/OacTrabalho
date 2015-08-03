@@ -9,7 +9,7 @@ PROC LEIA_VARIAVEIS
   ;LENDO O NUMERO
   PUSH AX
   LEA DX, MSG_NUM             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
-  CALL READ
+  CALL READ ; procedimento responsavel pela leitura dos numeros em array até que ocorra o enter
   POP CX
   MOV AL, READNUM
   RET
@@ -59,8 +59,8 @@ PROC MAIN
 
     ;ANALISANDO SE É POSITIVO
     CMP AL,0
-    JLE L_ERRO
-    JG  PROCESSA
+    JL   L_ERRO  ;encaminha para o label de erro caso seja menor que zero
+    JGE  PROCESSA
 
     L_ERRO:
       LEA DX, MSG_ERRO
@@ -69,24 +69,36 @@ PROC MAIN
       MOV READNUM,0
     PROCESSA:
       CALL CALCULA_FATORIAL
-      MOV DX,AX
+      LEA DX,MSG_RESULT
       MOV AH,09H
+      INT 21H
+
+      LEA DX,MSG_RESULT
+      MOV AH,09H
+      INT 21H
+
+      MOV AH,2
+      MOV DX,RESULT
       INT 21H
 
 
     RET
 ENDP
 
+;usando o recurso do loop que armazena em cx ele decrementa acumulando multiplicadores até que cx fique um
 PROC CALCULA_FATORIAL
-  ;CALCULA PELO VALOR ARMAZENADO EM AL
+  ;armazenamos em ax o valor com seguinte artificio, a entrada que é armazenada em al , zeramos ah e
+  ;passamos o ax todo para nao ocorrer problema de transporte de 16bits
   MOV AH,0
   MOV CX,AX
   MOV BX,CX
   MOV AX,1
+  ;loop decremental do numero inputado até zero, em caso do numero vier com zero, retorna 1
   K:  MUL CX
       LOOP K
 
   MOV RESULT,AX
+  RET
 ENDP
 
 
@@ -106,3 +118,4 @@ MSG_ENTER DB  13, 10, "$"
 
 MSG_NUM  DB "DIGITE UM NUMERO: $"
 MSG_ERRO    DB "NAO FOI POSSIVEL CALCULAR O FATORIAL $"
+MSG_RESULT DW "FATORIAL É: $"
