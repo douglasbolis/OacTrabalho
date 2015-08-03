@@ -8,13 +8,13 @@ int main() {
     int auxC = 0;
     int i;
 
-    printf("%d %d ", elemA, elemB);
+    printf("%d , %d", elemA, elemB);
 
     for (i = 2; i < qtdElements; i++) {
         auxC = elemA;
         elemA = elemA + elemB;
         elemB = auxC;
 
-        printf("%d ", elemA);
+        printf(", %d ", elemA);
     }
 }
