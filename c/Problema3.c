@@ -1,25 +1,20 @@
-#include<stdio.h>
+#include <stdio.h>
 
-int main(void) {
-    int elem;
-    int aux;
-    int prod = 1;
+int main()
+{
+    int num;
 
-    printf("Digite um numero para calcular o fatorial: ");
-    scanf("%d", &elem);
 
-    while (elem < 0) {
-        printf("Numero invalido!\nNao existe fatorial de numero negativo.\n\n");
-        printf("Digite outro numero maior que 0: ");
-        scanf("%d", &elem);
+    printf("Digite um número inteiro:");
+    scanf("%d", &num);
+
+
+    int tot = 1;
+
+
+    for (int i = num; i >= 2; i--) {
+        tot*=i;
     }
 
-    aux = elem;
-
-    while (aux > 1) {
-        prod = prod * aux;
-        aux--;
-    }
-
-    printf("Fatorial de %d: %d.\n", elem, prod);
+    printf("%d\n", tot);
 }
