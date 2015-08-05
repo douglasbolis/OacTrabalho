@@ -1,30 +1,35 @@
-;; PROBLEMA1.ASM
+;; PROBLEMA3.ASM
 ORG 100H
 
 CALL MAIN
 RET
 
-
+;leia variaveis - funcao generica que encapsula todas as entradas , utilizaremos lad_a/lado_b/lado_c para armazenar lados de triangulo
+;----------------------------------------------------------------------------------------------------------------------
 PROC LEIA_VARIAVEIS
   ;LENDO O NUMERO
   LEA DX, MSG_NUM             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
-  CALL MSG_READ ; procedimento responsavel pela leitura dos numeros em array até que ocorra o enter
+  CALL MSG_WRITE ; procedimento responsavel pela leitura dos numeros em array até que ocorra o enter
   CALL SCAN_NUM
   MOV READNUM,CX
   RET
 ENDP
 
 
-
-; FUNCIONAMENTO : imprime a string endereçada em dx
-PROC MSG_READ
+;msg_write - modularizacao da impressao de mensagem do conteudo armazenado em DX
+;----------------------------------------------------------------------------------------------------------------------
+PROC MSG_WRITE
     ;IMPRESSAO DA MENSAGEM DE LEITURA DO CAMPO PELO REGISTRADOR DX
     MOV AH,09H
     INT 21H
     RET
 ENDP
 
-
+;MAIN - funcao principal do programa, que organiza todo o fluxo em
+; - le o valor de entrada
+; - processa o FATORIAL
+; - imprime o resultado
+;----------------------------------------------------------------------------------------------------------------------
 PROC MAIN
 
     CALL LEIA_VARIAVEIS
@@ -57,7 +62,9 @@ PROC MAIN
       RET
 ENDP
 
-;usando o recurso do loop que armazena em cx ele decrementa acumulando multiplicadores até que cx fique um
+
+;CALCULA_FATORIAL - com um loop baseado na variavel READNUM, ocorre um loop indo até zero multiplicando
+;----------------------------------------------------------------------------------------------------------------------
 PROC CALCULA_FATORIAL
   MOV CX,READNUM
   MOV BX,CX
@@ -73,6 +80,26 @@ PROC CALCULA_FATORIAL
     RET
 ENDP
 
+
+;PARA LER UM NUMERO DE 2 CASAS, VOU ARMAZENAR EM DUAS VARIAVEIS
+RESULT DW 1
+READNUM DW 0
+MSG_ENTER DB  13, 10, "$"
+
+
+
+MSG_NUM  DB "DIGITE UM NUMERO: $"
+MSG_ERRO    DB "NAO FOI POSSIVEL CALCULAR O FATORIAL $"
+MSG_RESULT DW "FATORIAL É: $"
+
+
+;----------------------------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------------------------------------------
+; ZONA DO CONTROL+C E CONTROL+V
 
 
 
@@ -202,7 +229,7 @@ NOT_MINUS:
 
         ;Adicionado intencionalmente para adicionar uma nova linha a cada leitura
         LEA DX, MSG_ENTER             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
-        CALL MSG_READ
+        CALL MSG_WRITE
 
 
 
@@ -366,13 +393,4 @@ DEFINE_SCAN_NUM
 DEFINE_PRINT_NUM
 DEFINE_PRINT_NUM_UNS
 
-;PARA LER UM NUMERO DE 2 CASAS, VOU ARMAZENAR EM DUAS VARIAVEIS
-RESULT DW 1
-READNUM DW 0
-MSG_ENTER DB  13, 10, "$"
-
-
-
-MSG_NUM  DB "DIGITE UM NUMERO: $"
-MSG_ERRO    DB "NAO FOI POSSIVEL CALCULAR O FATORIAL $"
-MSG_RESULT DW "FATORIAL É: $"
+END
