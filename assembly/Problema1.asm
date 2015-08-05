@@ -1,33 +1,41 @@
 ;; PROBLEMA1.ASM
+;; Desenvolvido por Clayton Silva <clayton@xdevel.com.br> e Douglas Lima <douglas@xdevel.com.br>
 ORG 100H
 
-CALL MAIN
+CALL LEIA_VARIAVEIS
+;LADOS DO TRIANGULO  AX,BX,CX SÃO OS LADOS A,B,C RESPECTIVAMENTE
+
+CALL PROCESSA_TRIANGULO
 RET
-
-
+;leia variaveis - funcao generica que encapsula todas as entradas , utilizaremos lad_a/lado_b/lado_c para armazenar lados de triangulo
+;----------------------------------------------------------------------------------------------------------------------
 PROC LEIA_VARIAVEIS
     ;LADOA
     LEA DX, MSG_LADO_A             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
-    CALL MSG_READ
+    CALL MSG_WRITE
     CALL SCAN_NUM
     MOV LADO_A,CX
 
     ;LADOB
     LEA DX, MSG_LADO_B             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
-    CALL MSG_READ
+    CALL MSG_WRITE
     CALL SCAN_NUM
     MOV LADO_B,CX
 
     ;LADOC
     LEA DX, MSG_LADO_C             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
-    CALL MSG_READ
+    CALL MSG_WRITE
     CALL SCAN_NUM
     MOV LADO_C,CX
     RET
 ENDP
+;fim de leia variaveis
+;----------------------------------------------------------------------------------------------------------------------
 
-; FUNCIONAMENTO : imprime a string endereçada em dx
-PROC MSG_READ
+
+;msg_write - modularizacao da impressao de mensagem do conteudo armazenado em DX
+;----------------------------------------------------------------------------------------------------------------------
+PROC MSG_WRITE
     ;IMPRESSAO DA MENSAGEM DE LEITURA DO CAMPO PELO REGISTRADOR DX
     MOV AH,09H
     INT 21H
@@ -35,10 +43,11 @@ PROC MSG_READ
 ENDP
 
 
-PROC MAIN
-
-    CALL LEIA_VARIAVEIS
-    ;LADOS DO TRIANGULO  AX,BX,CX SÃO OS LADOS A,B,C RESPECTIVAMENTE
+;PROCESSA TRIANGULO - TODA REGRA DE NEGOCIO DO PROBLEMA FICAR ARMAZENADO NELA, COM AX/BX/CX VERIFICAMOS:
+; - SE FORMA TRIANGULO
+; - QUAL TRIANGULO É FORMADO (ESCALENO,EQUILATERO,ISOSCELES)
+;----------------------------------------------------------------------------------------------------------------------
+PROC PROCESSA_TRIANGULO
 
     ;APLICANDO LADO_A , LADO_B E LADO_C EM AX,BX,CX RESPECTIVAMENTE
     MOV AX,LADO_A
@@ -96,10 +105,35 @@ PROC MAIN
       LEA DX, MSG_ESCALENO
       JMP L_PRINT
     L_PRINT:
-      MOV AH,09H
-      INT 21H
-      RET
+      CALL MSG_WRITE
+    RET
 ENDP
+
+
+
+
+;VARIAVEL APARA OS LADOS DO TRIANGULO
+LADO_A DW 0
+LADO_B DW 0
+LADO_C DW 0
+
+
+MSG_ENTER DB  13, 10, "$" ;cr + lf para forçar o enter e gerar uma nova linha
+MSG_LADO_A  DB "LADO A: $"
+MSG_LADO_B  DB "LADO B: $"
+MSG_LADO_C  DB "LADO C: $"
+MSG_EQUILATERO  DB "SEU TRIÂNGULO É EQUILÁTERO. $"
+MSG_ISOSCELES   DB "SEU TRIÂNGULO É ISÓSCELES. $"
+MSG_ESCALENO    DB "SEU TRIÂNGULO É ESCALENO. $"
+MSG_ERRO    DB "SEUS VALORES NÃO FORMAM UM TRIANGULO $"
+
+;----------------------------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------------------------------------------
+; ZONA DO CONTROL+C E CONTROL+V
 
 
 ;MACROS IMPORTADAS  DO EMU8086.INC
@@ -228,7 +262,7 @@ NOT_MINUS:
 
         ;Adicionado intencionalmente para adicionar uma nova linha a cada leitura
         LEA DX, MSG_ENTER             ; ARMAZENA ARRAY NO DX PARA SER UTILIZADO NO READ
-        CALL MSG_READ
+        CALL MSG_WRITE
 
 
 
@@ -254,25 +288,6 @@ PUTC    MACRO   char
         POP     AX
 ENDM
 
-
-
-
-
 DEFINE_SCAN_NUM
-
-;VARIAVEL APARA OS LADOS DO TRIANGULO
-LADO_A DW 0
-LADO_B DW 0
-LADO_C DW 0
-
-
-MSG_ENTER DB  13, 10, "$" ;cr + lf para forçar o enter e gerar uma nova linha
-MSG_LADO_A  DB "LADO A: $"
-MSG_LADO_B  DB "LADO B: $"
-MSG_LADO_C  DB "LADO C: $"
-MSG_EQUILATERO  DB "SEU TRIÂNGULO É EQUILÁTERO. $"
-MSG_ISOSCELES   DB "SEU TRIÂNGULO É ISÓSCELES. $"
-MSG_ESCALENO    DB "SEU TRIÂNGULO É ESCALENO. $"
-MSG_ERRO    DB "SEUS VALORES NÃO FORMAM UM TRIANGULO $"
 
 END
