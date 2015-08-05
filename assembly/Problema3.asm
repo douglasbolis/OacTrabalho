@@ -48,9 +48,6 @@ PROC MAIN
       JMP L_END_MAIN
     L_PROCESSA:
       CALL CALCULA_FATORIAL
-      LEA DX,MSG_RESULT
-      MOV AH,09H
-      INT 21H
 
       LEA DX,MSG_RESULT
       MOV AH,09H
@@ -90,7 +87,7 @@ MSG_ENTER DB  13, 10, "$"
 
 MSG_NUM  DB "DIGITE UM NUMERO: $"
 MSG_ERRO    DB "NAO FOI POSSIVEL CALCULAR O FATORIAL $"
-MSG_RESULT DW "FATORIAL É: $"
+MSG_RESULT DW "FATORIAL E: $"
 
 
 ;----------------------------------------------------------------------------------------------------------------------
