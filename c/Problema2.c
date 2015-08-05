@@ -26,7 +26,7 @@ int main(void) {
 /**
  * Imprimindo primeiros dois números da sequência
  */
-    printf("Sequencia de Fibinacci:\n%d %d ", elemA, elemB);
+    printf("%d %d ", elemA, elemB);
 /**
  * Loop for iniciando em 2(porque os dois primeiros elementos da sequência
  * já foram impresso) com parada em 19(número de elementos da sequência, contando o zero).

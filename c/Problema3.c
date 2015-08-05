@@ -18,7 +18,7 @@ int main() {
 /**
  * Input para armazenar o numero digitado no endereço da variável.
  */
-    printf("Digite um número inteiro: ");
+    printf("DIGITE UM NUMERO: ");
     scanf("%d", &num);
 /**
  * Loop for para gerar o fatorial decrementando a partir do numero digitado até chegar a dois,
@@ -30,5 +30,5 @@ int main() {
 /**
  * Impressão do resultado final do fatorial de número digitado.
  */
-    printf("%d\n", fat);
+    printf("FATORIAL E: %d\n", fat);
 }
