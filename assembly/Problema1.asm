@@ -278,8 +278,8 @@ DEFINE_SCAN_NUM         ENDM
 ;***************************************************************
 
 
-; this macro prints a char in AL and advances
-; the current cursor position:
+;esta macro imprime um caractere em AL
+;e avança a posição atual do cursor:
 PUTC    MACRO   char
         PUSH    AX
         MOV     AL, char
