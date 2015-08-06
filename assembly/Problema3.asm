@@ -48,6 +48,9 @@ PROC MAIN
       JMP L_END_MAIN
     L_PROCESSA:
       CALL CALCULA_FATORIAL
+      LEA DX,MSG_RESULT
+      MOV AH,09H
+      INT 21H
 
       LEA DX,MSG_RESULT
       MOV AH,09H
@@ -87,7 +90,7 @@ MSG_ENTER DB  13, 10, "$"
 
 MSG_NUM  DB "DIGITE UM NUMERO: $"
 MSG_ERRO    DB "NAO FOI POSSIVEL CALCULAR O FATORIAL $"
-MSG_RESULT DW "FATORIAL E: $"
+MSG_RESULT DW "FATORIAL √â: $"
 
 
 ;----------------------------------------------------------------------------------------------------------------------
@@ -105,12 +108,14 @@ MSG_RESULT DW "FATORIAL E: $"
 
 ; MACRO LE UM N√öMERO COM SINAL E ARMAZENA NO REGISTRADOR CX
 DEFINE_SCAN_NUM         MACRO
+
+; DEFININDO COMO ESCOPO LOCAL
 LOCAL MAKE_MINUS, TEN, NEXT_DIGIT, SET_MINUS
 LOCAL TOO_BIG, BACKSPACE_CHECKED, TOO_BIG2
 LOCAL STOP_INPUT, NOT_MINUS, SKIP_PROC_SCAN_NUM
 LOCAL REMOVE_NOT_DIGIT, OK_AE_0, OK_DIGIT, NOT_CR
 
-; PROTECT FROM WRONG DEFINITION LOCATION:
+; PROTEGE DA DEFINI«√O ERRADA DE LOCALIZA«√O:
 JMP     SKIP_PROC_SCAN_NUM
 
 SCAN_NUM        PROC    NEAR
@@ -122,43 +127,43 @@ SCAN_NUM        PROC    NEAR
         ;CX SER√Å UTILIZADO NA LEITURA, INICIAMOS COM ZERO
         MOV     CX, 0
 
-        ; RESET FLAG:
+        ; REAJUSTANDO BANDEIRA:
         MOV     CS:MAKE_MINUS, 0
 
 NEXT_DIGIT:
 
-        ; GET CHAR FROM KEYBOARD
-        ; INTO AL:
+        ; CAPITURA CARACTER DO TECLADO
+        ; MOVENDO PARA AL:
         MOV     AH, 00H
         INT     16H
-        ; AND PRINT IT:
+        ; E IMPRIMINDO ELE:
         MOV     AH, 0EH
         INT     10H
 
-        ; CHECK FOR MINUS:
+        ; VERIFICANDO SE POSSUI SINAL DE `MENOS`:
         CMP     AL, '-'
         JE      SET_MINUS
 
-        ; CHECK FOR ENTER KEY:
-        CMP     AL, 13  ; CARRIAGE RETURN?
+        ; VERIFICANDO SE H¡ O CARACTER DE ENTER:
+        CMP     AL, 13  ; RETORNO?
         JNE     NOT_CR
         JMP     STOP_INPUT
 NOT_CR:
 
 
-        CMP     AL, 8                   ; 'BACKSPACE' PRESSED?
+        CMP     AL, 8                   ; 'BACKSPACE' PRESSIONADO?
         JNE     BACKSPACE_CHECKED
-        MOV     DX, 0                   ; REMOVE LAST DIGIT BY
-        MOV     AX, CX                  ; DIVISION:
+        MOV     DX, 0                   ; REMOVE O ⁄LTIMO DIGITO
+        MOV     AX, CX                  ; DIVIS√O:
         DIV     CS:TEN                  ; AX = DX:AX / 10 (DX-REM).
         MOV     CX, AX
-        PUTC    ' '                     ; CLEAR POSITION.
-        PUTC    8                       ; BACKSPACE AGAIN.
+        PUTC    ' '                     ; LIMPA A POSI«√O.
+        PUTC    8                       ; BACKSPACE NOVAMENTE.
         JMP     NEXT_DIGIT
 BACKSPACE_CHECKED:
 
 
-        ; ALLOW ONLY DIGITS:
+        ; PERMITE SOMENTE DIGITOS:
         CMP     AL, '0'
         JAE     OK_AE_0
         JMP     REMOVE_NOT_DIGIT
@@ -167,30 +172,30 @@ OK_AE_0:
         JBE     OK_DIGIT
 REMOVE_NOT_DIGIT:
         PUTC    8       ; BACKSPACE.
-        PUTC    ' '     ; CLEAR LAST ENTERED NOT DIGIT.
-        PUTC    8       ; BACKSPACE AGAIN.
-        JMP     NEXT_DIGIT ; WAIT FOR NEXT INPUT.
+        PUTC    ' '     ; REMOVE O ULTIMO CARACTER N√O DIGITO.
+        PUTC    8       ; BACKSPACE NOVAMENTE.
+        JMP     NEXT_DIGIT ; ESPERANDO PR”XIMA ENTRADA DE DADO.
 OK_DIGIT:
 
 
-        ; MULTIPLY CX BY 10 (FIRST TIME THE RESULT IS ZERO)
+        ; MULTIPLICANDO CX POR 10 (A PRIMEIRA VEZ O RESULTADO … ZERO)
         PUSH    AX
         MOV     AX, CX
         MUL     CS:TEN                  ; DX:AX = AX*10
         MOV     CX, AX
         POP     AX
 
-        ; CHECK IF THE NUMBER IS TOO BIG
-        ; (RESULT SHOULD BE 16 BITS)
+        ; VERIFICANDO SE O N⁄MERO … MUITO GRANDE
+        ; (O RESULTADO DEVE SER DE 16 BITS)
         CMP     DX, 0
         JNE     TOO_BIG
 
-        ; CONVERT FROM ASCII CODE:
+        ; CONVERTENDO O CODIGO ASCII:
         SUB     AL, 30H
 
-        ; ADD AL TO CX:
+        ; ADD AL EM CX:
         MOV     AH, 0
-        MOV     DX, CX      ; BACKUP, IN CASE THE RESULT WILL BE TOO BIG.
+        MOV     DX, CX      ; BACKUP, CASO O RESULTADO SEJA MUITO GRANDE.
         ADD     CX, AX
         JC      TOO_BIG2    ; JUMP IF THE NUMBER IS TOO BIG.
 
@@ -201,20 +206,20 @@ SET_MINUS:
         JMP     NEXT_DIGIT
 
 TOO_BIG2:
-        MOV     CX, DX      ; RESTORE THE BACKUPED VALUE BEFORE ADD.
-        MOV     DX, 0       ; DX WAS ZERO BEFORE BACKUP!
+        MOV     CX, DX      ; RESTAURA O VALOR DE BACKUP ANTES DE  ADICIONAR
+        MOV     DX, 0       ; DX FOI ZERO ANTES DO BACKUP!
 TOO_BIG:
         MOV     AX, CX
-        DIV     CS:TEN  ; REVERSE LAST DX:AX = AX*10, MAKE AX = DX:AX / 10
+        DIV     CS:TEN  ; REVERTE O ULTIMO DX:AX = AX*10, MAKE AX = DX:AX / 10
         MOV     CX, AX
         PUTC    8       ; BACKSPACE.
-        PUTC    ' '     ; CLEAR LAST ENTERED DIGIT.
-        PUTC    8       ; BACKSPACE AGAIN.
-        JMP     NEXT_DIGIT ; WAIT FOR ENTER/BACKSPACE.
+        PUTC    ' '     ; REMOVE O ULTIMO DIGITO INTRODUZIDO.
+        PUTC    8       ; BACKSPACE NOVAMENTE.
+        JMP     NEXT_DIGIT ; ESPERANDO POR UM ENTER OU BACKSPACE.
 
 
 STOP_INPUT:
-        ; CHECK FLAG:
+        ; VERIFICANDO A FLAG:
         CMP     CS:MAKE_MINUS, 0 ; ????
         JE      NOT_MINUS
         NEG     CX
@@ -242,8 +247,8 @@ DEFINE_SCAN_NUM         ENDM
 ;***************************************************************
 
 
-; this macro prints a char in AL and advances
-; the current cursor position:
+; esta macro imprime um caractere em AL e avanÁos
+; a posiÁ„o atual do cursor:
 PUTC    MACRO   char
         PUSH    AX
         MOV     AL, char
@@ -256,13 +261,13 @@ ENDM
 
 ;***************************************************************
 
-; This macro defines a procedure that prints number in AX,
-; used with PRINT_NUM_UNS to print signed numbers:
-; Requires DEFINE_PRINT_NUM_UNS !!!
+; Essa macro define um procedimento que imprime n˙mero em AX,
+; usado com PRINT_NUM_UNS para imprimir n˙meros assinados:
+; Requer DEFINE_PRINT_NUM_UNS !!!
 DEFINE_PRINT_NUM        MACRO
 LOCAL not_zero, positive, printed, skip_proc_print_num
 
-; protect from wrong definition location:
+; PROTEGE DE DEFINI«√O COM LOCALIZA«√O ERRADA:
 JMP     skip_proc_print_num
 
 PRINT_NUM       PROC    NEAR
@@ -276,8 +281,8 @@ PRINT_NUM       PROC    NEAR
         JMP     printed
 
 not_zero:
-        ; the check SIGN of AX,
-        ; make absolute if it's negative:
+        ; o sinal de verificaÁ„o de AX,
+††††††† ; tornar absoluto se È negativo:
         CMP     AX, 0
         JNS     positive
         NEG     AX
@@ -298,9 +303,9 @@ DEFINE_PRINT_NUM        ENDM
 
 ;***************************************************************
 
-; This macro defines a procedure that prints out an unsigned
-; number in AX (not just a single digit)
-; allowed values from 0 to 65535 (0FFFFh)
+; Essa macro define um procedimento que imprime um sem assinatura
+; n˙mero em AX (e n„o apenas um ˙nico dÌgito)
+; valores permitidos 0-65535 (0FFFFh)
 DEFINE_PRINT_NUM_UNS    MACRO
 LOCAL begin_print, calc, skip, print_zero, end_print, ten
 LOCAL skip_proc_print_num_uns
@@ -314,48 +319,48 @@ PRINT_NUM_UNS   PROC    NEAR
         PUSH    CX
         PUSH    DX
 
-        ; flag to prevent printing zeros before number:
+        ; flag para evitar a impress„o de zeros antes do n˙mero:
         MOV     CX, 1
 
-        ; (result of "/ 10000" is always less or equal to 9).
-        MOV     BX, 10000       ; 2710h - divider.
+        ; (resultado de "/ 10000" È sempre menor ou igual a 9).
+        MOV     BX, 10000       ; 2710h - DIVISOR.
 
-        ; AX is zero?
+        ; AX … ZERO?
         CMP     AX, 0
         JZ      print_zero
 
 begin_print:
 
-        ; check divider (if zero go to end_print):
+        ; VERIFICANDO DIVISOR (SE FOR ZERO VA PARA END_PRINT)
         CMP     BX,0
         JZ      end_print
 
-        ; avoid printing zeros before number:
+        ; evitar a impress„o de zeros antes do n˙mero:
         CMP     CX, 0
         JE      calc
-        ; if AX<BX then result of DIV will be zero:
+        ; se AX <BX ent„o resultar de DIV ser· zero:
         CMP     AX, BX
         JB      skip
 calc:
-        MOV     CX, 0   ; set flag.
+        MOV     CX, 0   ; SETANDO A  FLAG.
 
         MOV     DX, 0
-        DIV     BX      ; AX = DX:AX / BX   (DX=remainder).
+        DIV     BX      ; AX = DX:AX / BX   (DX=RESTANTE).
 
-        ; print last digit
-        ; AH is always ZERO, so it's ignored
-        ADD     AL, 30h    ; convert to ASCII code.
+        ; imprimir ˙ltimo dÌgito
+††††††† ; AH È sempre zero, por isso È ignorado
+        ADD     AL, 30h    ; CONVERTENDO PARA CODIGO ASCII.
         PUTC    AL
 
 
-        MOV     AX, DX  ; get remainder from last div.
+        MOV     AX, DX  ; PEGANDO O RESTANTE DA ULTIMA DIV.
 
 skip:
         ; calculate BX=BX/10
         PUSH    AX
         MOV     DX, 0
         MOV     AX, BX
-        DIV     CS:ten  ; AX = DX:AX / 10   (DX=remainder).
+        DIV     CS:ten  ; AX = DX:AX / 10   (DX=RESTANTE).
         MOV     BX, AX
         POP     AX
 
@@ -371,7 +376,7 @@ end_print:
         POP     BX
         POP     AX
         RET
-ten             DW      10      ; used as divider.
+ten             DW      10      ; USADO COMO DIVISOR.
 PRINT_NUM_UNS   ENDP
 
 skip_proc_print_num_uns:

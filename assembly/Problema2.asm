@@ -31,21 +31,15 @@ PROC CALCULA_FIB
    MOV AX,BX
    CALL PRINT_NUM ;IMPRIMINDO O NUMERO NA ORDEM DA SERIE DE FIB
    CALL PRINT_VIRGULA
+   MOV AX,DX
+   CALL PRINT_NUM ;IMPRIMINDO O NUMERO NA ORDEM DA SERIE DE FIB
 
-
-   ;codigo em c do loop
-   ;auxC = elemA;
-   ;elemA = elemA + elemB;
-   ;elemB = auxC;
-   ;printf(", %d ", elemA);
-   ;Ax será o auxC
-   L_K:  MOV  AX,BX  ;ARMAZENANDO Bx EM Ax (auxC = elemA)
-         ADD  BX,DX ;ADICIONANDO Dx EM Bx PARA OPERAR O FIBONACCI (elemA = elemA + elemB)
-         CALL PRINT_NUM ;IMPRIMINDO O NUMERO NA ORDEM DA SERIE DE FIB (AX = elemA)
-         MOV  DX,AX ; COLOCANDO O VALOR ANTIGO DO ELEMA EM ELEMA  (elemB = auxC)
-         CMP CX,1 ; parar quando cx for 2 que está decrementando automaticamente
+   L_K:  MOV AX,BX ;ARMAZENANDO Bx EM Ax QUE VAI SER USADO PRA PIVOTEAR
+         ADD AX,DX ;ADICIONANDO Dx EM Ax PARA OPERAR O FIBONACCI
+         ;CALL PRINT_VIRGULA
+         CALL PRINT_NUM ;IMPRIMINDO O NUMERO NA ORDEM DA SERIE DE FIB
+         CMP CX,2 ;QUANDO
          JE L_END
-         CALL PRINT_VIRGULA
          LOOP L_K
    L_END:
          RET

@@ -42,7 +42,7 @@ int main() {
         }
     }
     /**
-     * Casos os valores não formam um triangulo, uma mensagem de triangulo inválido será impresso.
+     * Casos os valores não formem um triangulo, uma mensagem de triangulo inválido será impresso.
      */
     else {
         printf ("SEUS VALORES NAO FORMAM UM TRIANGULO.\n");
